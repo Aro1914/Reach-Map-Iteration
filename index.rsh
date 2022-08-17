@@ -31,15 +31,15 @@ export const main = Reach.App(() => {
 
   const end = lastConsensusTime() + 20;
 
-  const isValid = true; // Switch this value to either refund or cash out all paid funds; true catches out, false refunds
+  const isValid = false; // Switch this value to either refund or cash out all paid funds; true catches out, false refunds
 
   const [count, currentBal, keepGoing, lastAddress] = parallelReduce([1, balance(), true, Deployer])
     .invariant(balance() == currentBal) // Edit this to suit the flow of your DApp
-    .while(lastConsensusTime() <= end && keepGoing) // This could be a timeout value
+    .while(lastConsensusTime() <= end && keepGoing) // This could be a timeout value, edit this to your liking
     .api_(Voters.contribute, (amt) => {
       check(amt > 0, "Contribution too small");
-      const payment = amt;
-      return [payment, (notify) => {
+      const payment = amt; // This is amount to be paid to the contract
+      return [payment, (notify) => { // In the first index of the return, the payment is transferred to the contract (This could be non-network tokens too)
         notify(null);
         contributors[count] = { address: this, amt: amt };
         return [count + 1, balance(), (count + 1) <= 3 ? keepGoing : false, this]; // Review carefully how you would want to update the while condition, in this case the condition states that the loop continues till 20 blocks after the last consensus time and as long as keepGoing is true

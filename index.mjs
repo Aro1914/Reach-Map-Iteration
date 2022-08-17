@@ -10,11 +10,8 @@ console.log('Hello, Alice!');
 console.log('Launching...');
 const ctcAlice = accAlice.contract(backend);
 const APIs = [];
-let done = false;
-
 
 const start = async () => {
-  const sleep = (milliseconds) => new Promise((resolve) => setTimeout(() => resolve(), milliseconds));
 
   const runAPIs = async (who) => {
     const num = Math.floor(Math.random() * 50) + 1;
@@ -25,19 +22,17 @@ const start = async () => {
     const ctc = acc.contract(backend, ctcAlice.getInfo());
 
     try {
-      console.log(`${who} paid ${num} ${await ctc.apis.Voters.contribute(stdlib.parseCurrency(num))}`);
+      console.log(`${who} paid ${num}`);
+      await ctc.apis.Voters.contribute(stdlib.parseCurrency(num))
     }
     catch (error) {
-      console.log('An error occurred with the API calls', { cause: error });
+      console.log(`Sorry ${who}, your contribution was not accepted`);
     }
-
-    return who;
   };
 
-  const x = await runAPIs('Emmanuel');
-  const y = await runAPIs('Michael');
-  const z = await runAPIs('Owolabi');
-  console.log({ x: x, y: y, z: z });
+  await runAPIs('Emmanuel')
+  await runAPIs('Michael')
+  await runAPIs('Owolabi')
 };
 
 console.log('Starting backends...');
@@ -61,5 +56,4 @@ for (const [who, acc] of APIs) {
   const bal = await stdlib.balanceOf(acc);
   console.log(`${who} now has ${stdlib.formatCurrency(bal, 4)} ${stdlib.standardUnit}`);
 }
-done = true;
 console.log('Goodbye, Alice!');
